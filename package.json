@@ -1,0 +1,15 @@
+{
+  "name": "backendproject",
+  "version": "1.0.0",
+  "description": "a trial backend project -skorpio",
+  "keywords": [
+    "skorpio",
+    "backend"
+  ],
+  "author": "rakeshbk skorpio",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
