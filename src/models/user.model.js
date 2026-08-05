@@ -4,7 +4,7 @@ import bcrypt from "bcrypt"
 
 const userSchema = new Schema (
     {
-        userName :{
+        username :{
             type :String,
             required : true,
             unique:true,
@@ -34,7 +34,7 @@ const userSchema = new Schema (
         },
         watchHistory:[
             {
-                type : Schema.ObjectId.Types.ObjectId,
+                type : Schema.Types.ObjectId,
                 ref : "Video"
             }
         ],
@@ -48,13 +48,21 @@ const userSchema = new Schema (
 }
 ,{timestamps:true})
 
-
+/*
 userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
 
     this.password = await bcrypt.hash(this.password , 10)
     next()
 })
+    */
+
+//Modified code from chatgpt * modern mongoose version runs without the next() part too
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+
+    this.password = await bcrypt.hash(this.password, 10);
+});
 
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password,this.password)

@@ -16,18 +16,19 @@ const registerUser = asyncHandler( async (req,res) => {
     // return response
 
     //Taking input from user in frontend , use req.body
-    const{ fullName , email, userName, password } = req.body
+    const{ fullName , email, username, password } = req.body
     console.log( "email : " , email);   
+    console.log(req.body)
 
     //Validating
     if(
-        [fullName,email,userName,password].some((field)=>field?.trim() === "") // returns callback if any one of the element in array returns TRUE for condition
+        [fullName,email,username,password].some((field)=>field?.trim() === "") // returns callback if any one of the element in array returns TRUE for condition
     ){
         throw new ApiError(400,"All fields are required")
     }
 
     //Checking if user alr exists
-    const existedUser = User.findOne({ // finds one document
+    const existedUser = await User.findOne({ // finds one document
         $or : [{ username } , { email }] //$or is used to check either username or email
     })
 
@@ -36,9 +37,16 @@ const registerUser = asyncHandler( async (req,res) => {
     }
 
     //Checking for images and making sure avatar is compulsary
+    console.log(req.files)
     const avatarLocalPath =  req.files?.avatar[0]?.path  // returns the local path of the avatar image 
-    const coverImageLocalPath =  req.files?.coverImage[0]?.path
+    
+    
+    //const coverImageLocalPath =  req.files?.coverImage[0]?.path
 
+    let coverImageLocalPath;
+    if( req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
 
     //avatar made comppulsary
     if ( !avatarLocalPath ){
@@ -47,7 +55,9 @@ const registerUser = asyncHandler( async (req,res) => {
 
     //Upload on cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const converImage = await uploadOnCloudinary(converImageLocalPath)
+    const coverImage = coverImageLocalPath
+    ? await uploadOnCloudinary(coverImageLocalPath)
+    :null;
     
     //check again if avatar exists
     if ( !avatar ){
@@ -68,6 +78,8 @@ const registerUser = asyncHandler( async (req,res) => {
     const createdUser = await User.findById(user._id).select(  //select here selects all the elements entered by user except the ones mentioned below
         "-password -refreshToken"
     )
+
+    console.log(createdUser)
 
     if(!createdUser){
         throw new ApiError(500,"Something went wrong while registering the user")

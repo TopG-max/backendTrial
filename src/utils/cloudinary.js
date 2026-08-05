@@ -16,6 +16,8 @@ const uploadOnCloudinary = async (localFilePath) => {
         })    
         //file has been uploaded sucessfully
         console.log("Has been uploaded on cloudinary !",response.url);
+        //After checking if the files upload from multer to cloudinary unlink them till then keep the unlink code commented
+        fs.unlinkSync(localFilePath) // removes it from mullter after upload to cloudinary
         return response
     } catch (error) {
         fs.unlinkSync(localFilePath)  //Removes the locally saved temporary file in local server as the upload operation is failed
